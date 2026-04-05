@@ -1,235 +1,105 @@
----
-title: Windows
-description: How to create and manage windows, tabs, and sections in Rayfield.
----
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-## Create a window
-
-`Rayfield:CreateWindow()` is the entry point for your UI. Call it once after loading the library.
-
-```lua
+-- Creación de la Ventana Principal
 local Window = Rayfield:CreateWindow({
-   Name = "Rayfield Example Window",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by Sirius",
-   ShowText = "Rayfield", -- for mobile users to unhide Rayfield, change if you'd like
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
-
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
-
+   Name = "pablo_DTH Hub | Muscle Legends",
+   LoadingTitle = "Cargando Potencia...",
+   LoadingSubtitle = "por pablo_DTH",
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "Big Hub"
+      FolderName = "pablo_DTH_ML"
    },
-
-   Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include Discord.gg/. E.g. Discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
-   },
-
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
-   }
+   Theme = "DarkRed" -- Estética Rojo y Negro
 })
-```
 
-### Options
+-- Variables de estado
+getgenv().autoWeight = false
+getgenv().autoPunch = false
 
-<ResponseField name="Name" type="string" required>
-  The title displayed in the window header.
-</ResponseField>
+-- Pestaña de Entrenamiento
+local FarmTab = Window:CreateTab("Auto Farm", 4483345998)
 
-<ResponseField name="Icon" type="number | string">
-  Icon shown in the topbar. Pass a Roblox image ID (number), a Lucide icon name (string), or `0` for no icon.
-</ResponseField>
+FarmTab:CreateSection("Entrenamiento de Fuerza")
 
-<ResponseField name="LoadingTitle" type="string">
-  Title shown on the loading screen.
-</ResponseField>
+-- Toggle para PESAS
+FarmTab:CreateToggle({
+   Name = "Auto-Equipar Pesa + AutoClick",
+   CurrentValue = false,
+   Flag = "TogglePesa",
+   Callback = function(Value)
+      getgenv().autoWeight = Value
+      if Value then
+         spawn(function()
+            while getgenv().autoWeight do
+               local char = game.Players.LocalPlayer.Character
+               local bp = game.Players.LocalPlayer.Backpack
+               -- Busca la pesa en inventario o mano
+               local tool = bp:FindFirstChild("Weight") or char:FindFirstChild("Weight")
+               
+               if tool then
+                  char.Humanoid:EquipTool(tool)
+                  tool:Activate()
+               end
+               task.wait(0.01) -- Velocidad del click
+            end
+         end)
+      end
+   end,
+})
 
-<ResponseField name="LoadingSubtitle" type="string">
-  Subtitle shown on the loading screen.
-</ResponseField>
+-- Toggle para PUÑOS
+FarmTab:CreateToggle({
+   Name = "Auto-Equipar Puños + AutoClick",
+   CurrentValue = false,
+   Flag = "TogglePuno",
+   Callback = function(Value)
+      getgenv().autoPunch = Value
+      if Value then
+         spawn(function()
+            while getgenv().autoPunch do
+               local char = game.Players.LocalPlayer.Character
+               local bp = game.Players.LocalPlayer.Backpack
+               -- Busca el puño en inventario o mano
+               local tool = bp:FindFirstChild("Punch") or char:FindFirstChild("Punch")
+               
+               if tool then
+                  char.Humanoid:EquipTool(tool)
+                  tool:Activate()
+               end
+               task.wait(0.01)
+            end
+         end)
+      end
+   end,
+})
 
-<ResponseField name="ShowText" type="string">
-  Text shown to mobile users to unhide the UI.
-</ResponseField>
+-- Pestaña de Personaje (Extras)
+local PlayerTab = Window:CreateTab("Personaje", 4483345998)
 
-<ResponseField name="Theme" type="string | table">
-  The theme to apply. Pass a theme identifier string or a custom theme table. See [Themes](/rayfield/themes).
-</ResponseField>
+PlayerTab:CreateSlider({
+   Name = "Velocidad de Caminado",
+   Range = {16, 500},
+   Increment = 10,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "SpeedSlider",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
 
-<ResponseField name="ToggleUIKeybind" type="string | Enum.KeyCode">
-  The key that toggles UI visibility.
-</ResponseField>
+PlayerTab:CreateButton({
+   Name = "Resetear Personaje",
+   Callback = function()
+      game.Players.LocalPlayer.Character:BreakJoints()
+   end,
+})
 
-<ResponseField name="DisableRayfieldPrompts" type="boolean">
-  Suppresses built-in Rayfield prompts.
-</ResponseField>
+-- Notificación de Inicio
+Rayfield:Notify({
+   Title = "pablo_DTH Hub Cargado",
+   Content = "Script listo para Muscle Legends",
+   Duration = 5,
+   Image = 4483345998,
+})
 
-<ResponseField name="DisableBuildWarnings" type="boolean">
-  Prevents Rayfield from emitting warnings when there is a version mismatch between your script and the interface.
-</ResponseField>
-
-<ResponseField name="ConfigurationSaving" type="object">
-  Controls automatic configuration saving.
-
-  <Expandable title="ConfigurationSaving options">
-    <ResponseField name="Enabled" type="boolean">
-      Enables configuration saving.
-    </ResponseField>
-    <ResponseField name="FolderName" type="string | nil">
-      Custom folder name for saved config files. Leave `nil` to use the default.
-    </ResponseField>
-    <ResponseField name="FileName" type="string">
-      The name of the saved config file.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-<ResponseField name="Discord" type="object">
-  Prompts the user to join your Discord server on supported executors.
-
-  <Expandable title="Discord options">
-    <ResponseField name="Enabled" type="boolean">
-      Enables the Discord join prompt.
-    </ResponseField>
-    <ResponseField name="Invite" type="string">
-      Your Discord invite code, without `discord.gg/`. For example, `discord.gg/ABCD` → `"ABCD"`.
-    </ResponseField>
-    <ResponseField name="RememberJoins" type="boolean">
-      When `true`, the user is only prompted once. When `false`, they are prompted every load.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-<Warning>
-  The key system UI loads a detectable Roblox model. In [Secure Mode](/rayfield/secure-mode), the key UI is blocked entirely — users must have a saved key from a previous session or they won't be able to load the script.
-</Warning>
-
-<ResponseField name="KeySystem" type="boolean">
-  Enables the key system. Configure it with `KeySettings`.
-</ResponseField>
-
-<ResponseField name="KeySettings" type="object">
-  Settings for the key system. Only used when `KeySystem` is `true`.
-
-  <Expandable title="KeySettings options">
-    <ResponseField name="Title" type="string">
-      Title displayed on the key prompt.
-    </ResponseField>
-    <ResponseField name="Subtitle" type="string">
-      Subtitle displayed on the key prompt.
-    </ResponseField>
-    <ResponseField name="Note" type="string">
-      Instructions for obtaining the key, shown to the user.
-    </ResponseField>
-    <ResponseField name="FileName" type="string">
-      File name used to save the key locally. Use something unique to avoid conflicts with other Rayfield scripts.
-    </ResponseField>
-    <ResponseField name="SaveKey" type="boolean">
-      When `true`, the user's key is saved so they don't need to re-enter it. Note: changing the key will invalidate saved keys.
-    </ResponseField>
-    <ResponseField name="GrabKeyFromSite" type="boolean">
-      When `true`, Rayfield fetches the key from the URL specified in `Key`.
-    </ResponseField>
-    <ResponseField name="Key" type="table">
-      A list of accepted keys (strings), or RAW file URLs (Pastebin, GitHub, etc.) when `GrabKeyFromSite` is `true`.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
----
-
-## Create a tab
-
-Tabs are the top-level sections inside a window. Each tab can hold its own elements.
-
-```lua
-local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
-```
-
-### Lucide icon support
-
-You can use a [Lucide icon](https://lucide.dev/icons/) name in place of a Roblox image ID.
-
-```lua
-local Tab = Window:CreateTab("Tab Example", "rewind")
-```
-
-<Note>
-  Not all Lucide icons are supported. See the [full list of supported icons](https://github.com/latte-soft/lucide-roblox/tree/master/icons/compiled/48px). Credit to [Lucide](https://lucide.dev/) and [Latte Softworks](https://github.com/latte-soft/).
-</Note>
-
-<Warning>
-  Lucide icons and Roblox image IDs are detectable by game anti-cheats. If you need your script to be undetectable, use `getcustomasset()` instead. See [Secure Mode](/rayfield/secure-mode) for details.
-</Warning>
-
----
-
-## Create a section
-
-Sections add a labelled group header inside a tab.
-
-```lua
-local Section = Tab:CreateSection("Section Example")
-```
-
-### Update a section
-
-```lua
-Section:Set("Section Example")
-```
-
----
-
-## Create a divider
-
-Dividers add a horizontal rule inside a tab to visually separate content.
-
-```lua
-local Divider = Tab:CreateDivider()
-```
-
-### Update a divider
-
-```lua
-Divider:Set(false) -- Whether the divider's visibility is to be set to true or false.
-```
-
----
-
-## Visibility
-
-### Set visibility
-
-```lua
-Rayfield:SetVisibility(false)
-```
-
-### Get visibility
-
-```lua
-Rayfield:IsVisible()
-```
-
----
-
-## Destroy the interface
-
-```lua
-Rayfield:Destroy()
-```
